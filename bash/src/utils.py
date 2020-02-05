@@ -70,7 +70,20 @@ def substitute_variables(command):
 
 
 def split_command_into_args(command):
-    return split_with_quotes(command, re.compile('\s'))
+    state = State.UNQUOTED
+    args = []
+    last_arg = ''
+    for i, c in enumerate(command):
+        state = eval_state(state, c)
+        if state is State.UNQUOTED and re.match('\s', c):
+            if last_arg != '':
+                args += [last_arg]
+            last_arg = ''
+            continue
+        last_arg += c
+    if last_arg != '':
+        args += [last_arg]
+    return args
 
 
 def remove_quotes(word):

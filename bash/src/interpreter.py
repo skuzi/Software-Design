@@ -1,7 +1,7 @@
 import re
 
-from utils import remove_quotes, substitute_variables, split_into_commands, split_command_into_args
-from executors import WcExecutor, PwdExecutor, CatExecutor, EchoExecutor, ExternalExecutor, ExecutionException
+from src.utils import remove_quotes, substitute_variables, split_into_commands, split_command_into_args
+from src.executors import WcExecutor, PwdExecutor, CatExecutor, EchoExecutor, ExternalExecutor, ExecutionException
 import os
 
 executors = {
@@ -10,11 +10,13 @@ executors = {
     'cat': CatExecutor,
     'echo': EchoExecutor
 }
-assignment_pattern = re.compile("(\w)+=(\w*)")
+assignment_pattern = re.compile("([a-zA-Z_]+\w*)=(.*)")
 
 
 def execute_pipeline(commands):
     pipeline = list(map(substitute_variables, split_into_commands(commands)))
+    if '' in pipeline:
+        return 'error while parsing'
     stdin = None
     for command in pipeline:
         args = list(map(remove_quotes, split_command_into_args(command)))
@@ -37,7 +39,7 @@ def execute_pipeline(commands):
 
 
 def is_assignment(args):
-    return len(args) == 1 and assignment_pattern.match(args[0])
+    return len(args) == 1 and assignment_pattern.match(args[0]) is not None
 
 
 def is_exit(args):
