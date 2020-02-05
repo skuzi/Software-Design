@@ -57,7 +57,7 @@ class WcExecutor(Executor):
 
         if not args:
             if not stdin:
-                raise ValueError("no input given to wc")
+                raise ExecutionException("no input given to wc")
             return "%d %d %d" % (lines(stdin), words(stdin), bytes(stdin))
         else:
             total_lines = 0
