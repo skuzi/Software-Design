@@ -1,14 +1,15 @@
 import re
 
-from src.utils import remove_quotes, substitute_variables, split_into_commands, split_command_into_args
-from src.executors import WcExecutor, PwdExecutor, CatExecutor, EchoExecutor, ExternalExecutor, ExecutionException
+from utils import remove_quotes, substitute_variables, split_into_commands, split_command_into_args
+from executors import WcExecutor, PwdExecutor, CatExecutor, EchoExecutor, ExternalExecutor, ExecutionException, GrepExecutor
 import os
 
 executors = {
     'wc': WcExecutor,
     'pwd': PwdExecutor,
     'cat': CatExecutor,
-    'echo': EchoExecutor
+    'echo': EchoExecutor,
+    'grep': GrepExecutor
 }
 assignment_pattern = re.compile("([a-zA-Z_]+\w*)=(.*)")
 

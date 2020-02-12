@@ -1,13 +1,15 @@
 import os
 import subprocess
 from abc import abstractmethod
+from parsers import grep_parser, ParsingException
+import re
 
 
 class Executor:
     @staticmethod
     @abstractmethod
     def execute(args, stdin=None):
-        pass
+        raise NotImplementedError
 
 
 class ExecutionException(Exception):
@@ -91,6 +93,47 @@ class PwdExecutor(Executor):
     @staticmethod
     def execute(args, stdin=None):
         return os.getcwd()
+
+
+class GrepExecutor(Executor):
+    @staticmethod
+    def execute(args, stdin=None):
+        def find_matches(lines, args):
+            pattern_word = args.pattern
+            if args.word_match:
+                pattern_word = '\b' + pattern_word + '\b'
+            if args.ignore_case:
+                pattern = re.compile(pattern_word, re.IGNORECASE)
+            else:
+                pattern = re.compile(pattern_word)
+
+            output = ""
+            lines_to_print = 0
+            for line in lines:
+                if pattern.search(line):
+                    lines_to_print = args.lines_after + 1
+                if lines_to_print > 0:
+                    output += line + '\n'
+                lines_to_print -= 1
+
+            return output[:-1]
+
+        try:
+            args = grep_parser.parse_args(args)
+        except ParsingException as error:
+            raise ExecutionException(f"grep error: {error}")
+
+        if not args.file and stdin is None:
+            raise ExecutionException("grep error: no input passed to grep")
+
+        if args.file:
+            try:
+                with open(args.file, 'r') as file:
+                    return find_matches([line.rstrip() for line in file], args)
+            except IOError as error:
+                raise ExecutionException(f"grep error: {error}")
+        else:
+            return find_matches(stdin.split('\n'), args)
 
 
 class ExternalExecutor(Executor):
