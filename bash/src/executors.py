@@ -79,7 +79,7 @@ class WcExecutor(Executor):
                     total_words += file_words
                     total_bytes += file_bytes
 
-                    output += f"{file_lines} {file_words} {file_bytes} {filename}\n"
+                    output += f"{file_lines} {file_words} {file_bytes}\n"
                 except IOError as error:
                     raise ExecutionException(f"wc error: {error}")
 
