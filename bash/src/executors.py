@@ -4,9 +4,14 @@ from abc import abstractmethod
 
 
 class Executor:
+    """ Class representing executor of some command """
     @staticmethod
     @abstractmethod
     def execute(args, stdin=None):
+        """ Executes command bash-like 
+        :param args: arguments of a command, list of strings
+        :param stdin: input string of a command (e.g in 'echo "123" | cat' 123 would be an stdin in cat command)
+        """
         pass
 
 

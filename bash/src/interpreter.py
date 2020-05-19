@@ -14,6 +14,9 @@ assignment_pattern = re.compile("([a-zA-Z_]+\w*)=(.*)")
 
 
 def execute_pipeline(commands):
+    """
+    Splits given string into commands and executes it as a pipeline as it would be executed in bash 
+    """
     pipeline = list(map(substitute_variables, split_into_commands(commands)))
     if '' in pipeline:
         return 'error while parsing'
@@ -39,8 +42,16 @@ def execute_pipeline(commands):
 
 
 def is_assignment(args):
+    """ 
+    Finds if the command is an assignment command
+    :param args: command as an array of words
+    """
     return len(args) == 1 and assignment_pattern.match(args[0]) is not None
 
 
 def is_exit(args):
+    """ 
+    Finds if the command is an exit command
+    :param args: command as an array of words
+    """
     return len(args) == 1 and args[0] == 'exit'

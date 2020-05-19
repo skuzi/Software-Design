@@ -10,6 +10,8 @@ class State(Enum):
 
 
 def eval_state(state, c):
+    """ Evaluates next state depending on current character """
+
     if state is State.STRONG_QUOTED and c == '\'':
         return State.UNQUOTED
     if state is State.WEAK_QUOTED and c == '"':
@@ -23,6 +25,7 @@ def eval_state(state, c):
 
 
 def find_first_unquoted(line, pattern):
+    """ Finds first unquoted character in string matching passed pattern """
     state = State.UNQUOTED
     for i, c in enumerate(line):
         state = eval_state(state, c)
@@ -32,6 +35,10 @@ def find_first_unquoted(line, pattern):
 
 
 def find_unquoted(line, pattern, begin=0):
+    """ 
+    Splits string into substrings with separator matching pattern. Pattern must match exactly one character. Separator splits string only if it occurs being unquoted. 
+    :return: indices of beginnings of splits    
+    """
     if not line:
         return []
     ind = find_first_unquoted(line, pattern)
@@ -39,15 +46,26 @@ def find_unquoted(line, pattern, begin=0):
 
 
 def split_with_quotes(command, pattern):
+    """ 
+    Splits string into substrings with separator matching pattern. Pattern must match exactly one character. Separator splits string only if it occurs being unquoted. 
+    :return: array of substrings satysfing split
+    """
     split_indices = find_unquoted(command, pattern) + [-1]
     return [command[split_indices[i + 1] + 1:split_indices[i]].strip() for i in range(len(split_indices) - 2, -1, -1)]
 
 
 def split_into_commands(command):
+    """
+    Splits string into substrings with '|' as separator
+    """
     return split_with_quotes(command, re.compile(r'\|'))
 
 
 def substitute_variables(command):
+    """
+    Finds all unquoted (or weak quoted) occurences of variable in string and substitutes it with their respective values in os.environ. Variable is a string matching pattern '\$(\w+)'
+    :return: string with replaced occurences of variables
+    """
     if not command:
         return ''
     state = State.UNQUOTED
@@ -70,6 +88,7 @@ def substitute_variables(command):
 
 
 def split_command_into_args(command):
+    """ Splits command into words. Word is a substring not containing whitespace characters or any quoted substring even if it contains whitespaces."""
     state = State.UNQUOTED
     args = []
     last_arg = ''
@@ -87,6 +106,7 @@ def split_command_into_args(command):
 
 
 def remove_quotes(word):
+    """ Removes all weak quoted substrings in word """
     state = State.UNQUOTED
     result = ''
     for (i, c) in enumerate(word):
